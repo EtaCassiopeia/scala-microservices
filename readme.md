@@ -20,7 +20,7 @@ need to share some state with each other or at least be aware of each other.
 
 In this project each instance of **"file-transformer-service"** may process a different file. Each instance of service 
 may face some records which were processed by other services. As a result, those records should be omitted. 
-To achieve this goal I came up with a solution which is implemented using **Akka Distributed Data**.
+To achieve this goal I came up with a solution which is implemented using [Akka Distributed Data](http://doc.akka.io/docs/akka/2.4.17/scala/distributed-data.html).
 
 *Akka Distributed Data* is useful when you need to share data between nodes in an Akka Cluster.
 The data is accessed with an actor providing a key-value store like API.
@@ -36,13 +36,13 @@ The state changes always converge.
  
 It is eventually consistent and geared toward providing high read and write availability (partition tolerance), with low latency. 
 
-I have implemented my own custom data type named **BloomDataType**. It uses **BloomFilter** as it's underlying data structure.
+I have implemented my own custom data type named [BloomDataType](file-transformer-service/src/main/scala/akka/cluster/ddata/BloomDataType.scala). It uses **BloomFilter** as it's underlying data structure.
 A Bloom filter is a space-efficient probabilistic data structure, that is used to test whether an element is a member of a set. 
 
-Before *Distributed Data* is born, I had the same idea and implemented a simple project called [**Dibis**](https://github.com/EtaCassiopeia/Dibis) two years ago.
+Before *Distributed Data* is born, I had the same idea and implemented a simple project called [Dibis](https://github.com/EtaCassiopeia/Dibis) two years ago.
 
 The data types must be serializable with an Akka Serializer.Therefore, I implemented 
-an efficient serialization with **Protobuf** for my custom data type(BloomDataSerializer).
+an efficient serialization with **Protobuf** for my custom data type([BloomDataSerializer](file-transformer-service/src/main/scala/akka/cluster/ddata/BloomDataSerializer.scala)).
   
 By default the data is only kept in memory. It is redundant since it is replicated to other nodes in the cluster,
 but if you stop all nodes the data is lost, unless you have saved it elsewhere.
@@ -51,6 +51,8 @@ Entries can be configured to be durable, i.e. stored on local disk on each node.
 The stored data will be loaded next time the replicator is started, i.e. when actor system is restarted.
 This means data will survive as long as at least one node from the old cluster takes part in a new cluster.
 I have used **LMDB** as the default storage implementation to store serialized copy of the Bloom Filter on disk.
+
+To add this custom filtering mechanism I have used *Implicit Conversions* which can be found in [ExtendedSource](file-transformer-service/src/main/scala/dedup/ExtendedSource.scala) class.  
 
 project structure
 -----------------
@@ -63,7 +65,7 @@ This project consists of two main services:
     it. At the end the final results be stored in a Database.
 
 communication mechanism for two services is implemented using **Kafka**. I have chosen **Reactive Stream**s to implement
-**EventConsumer** and **FileTransformer** components.    
+[EventConsumer](file-transformer-service/src/main/scala/messaging/EventConsumer.scala) and [FileTransformer](file-transformer-service/src/main/scala/transfer/FileTransformer.scala) components.    
 
 Requirements
 ------------
