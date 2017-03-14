@@ -52,7 +52,9 @@ The stored data will be loaded next time the replicator is started, i.e. when ac
 This means data will survive as long as at least one node from the old cluster takes part in a new cluster.
 I have used **LMDB** as the default storage implementation to store serialized copy of the Bloom Filter on disk.
 
-To add this custom filtering mechanism I have used *Implicit Conversions* which can be found in [ExtendedSource](file-transformer-service/src/main/scala/dedup/ExtendedSource.scala) class.  
+To add this custom filtering mechanism I have used *Implicit Conversions* which can be found in [ExtendedSource](file-transformer-service/src/main/scala/dedup/ExtendedSource.scala) class.
+  
+![Alt](images/image.png "Scala Microservices")
 
 project structure
 -----------------
