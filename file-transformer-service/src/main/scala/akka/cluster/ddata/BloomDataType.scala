@@ -1,6 +1,5 @@
 package akka.cluster.ddata
 
-import akka.cluster.ddata.serialization.BloomFilterProto
 import com.twitter.algebird._
 
 object BloomDataType {

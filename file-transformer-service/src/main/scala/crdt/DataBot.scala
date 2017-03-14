@@ -1,17 +1,13 @@
 package crdt
 
-import java.util.concurrent.ThreadLocalRandom
-
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.cluster.Cluster
-import akka.cluster.ddata._
 import akka.cluster.ddata.Replicator._
+import akka.cluster.ddata._
 
 import scala.concurrent.duration._
 
 object DataBot {
-
-  private case object Tick
 
   case class Put(value: Integer)
 
@@ -26,10 +22,6 @@ class DataBot extends Actor with ActorLogging {
   val replicator = DistributedData(context.system).replicator
   implicit val node = Cluster(context.system)
 
-  import context.dispatcher
-
-  //val tickTask = context.system.scheduler.schedule(5.seconds, 5.seconds, self, Tick)
-
   //val DataKey = GSetKey[Int]("id")
   val DataKey = BloomFilterKey[Int]("id")
 
@@ -43,7 +35,7 @@ class DataBot extends Actor with ActorLogging {
   def receive = {
     case Put(value) =>
       log.info("Adding: {}", value)
-      //replicator ! Update(DataKey, GSet.empty[Int], WriteLocal)(_ + value)
+      //replicator ! Update(DataKey, GSet.empty[Int], writeMajority)(_ + value)
       replicator ! Update(DataKey, BloomDataType.empty[Int], writeMajority)(_ + value)
     case MightContain(value) =>
       log.info("Check for value: {}", value)
@@ -52,9 +44,9 @@ class DataBot extends Actor with ActorLogging {
       //val elements = g.get(DataKey).elements
       //replyTo ! elements.contains(value)
       replyTo ! g.get(DataKey).contains(value)
-    case GetFailure(DataKey,Some((value: Int, replyTo: ActorRef))) =>
+    case GetFailure(DataKey, Some((value: Int, replyTo: ActorRef))) =>
       log.info("Get Failure for value: {}", value)
-      //replyTo ! false
+      replyTo ! false
     // read from majority within 5.second
     case NotFound(DataKey, Some((value: Int, replyTo: ActorRef))) =>
       log.info("NotFound for value: {}", value)
