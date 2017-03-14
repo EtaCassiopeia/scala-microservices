@@ -1,0 +1,11 @@
+syntax = "proto3";
+package akka.cluster.ddata;
+
+message BloomFilterProto {
+  int32 item = 1;
+  int32 numHashes = 2;
+  int32 seed = 3;
+  int32 width = 4;
+  repeated int32 sparseBitSet = 5 [packed=true];
+  repeated int32 denseBitset = 6 [packed=true];
+}
