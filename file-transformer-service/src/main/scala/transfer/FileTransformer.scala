@@ -2,7 +2,6 @@ package transfer
 
 import java.io.{File, FileInputStream}
 import java.nio.file.Paths
-import java.time.format.DateTimeFormatterBuilder
 import java.util.concurrent.TimeUnit
 import java.util.zip.{ZipEntry, ZipInputStream}
 
@@ -14,7 +13,7 @@ import akka.util.ByteString
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import dedup.ImplicitConversions._
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatterBuilder}
 import org.joda.time.{DateTime, DateTimeZone}
 import repository.InMemoryRepository
 
@@ -32,17 +31,23 @@ class FileTransformer(config: Config, repository: InMemoryRepository, dataBot: A
   import system.dispatcher
 
   private val importDirectory = Paths.get(config.getString("transformer.tmp.dir")).toFile
-  private val dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/YYYY HH:mm:ss").withOffsetParsed()
+
+  private val dateTimeFormatter = new DateTimeFormatterBuilder()
+    .append(null,
+      Array(
+        DateTimeFormat.forPattern("MM-dd-yyyy HH:mm:ss").getParser,
+        DateTimeFormat.forPattern("M-d-yy HH:mm:ss").getParser))
+    .toFormatter
+
 
   def parseLine(filePath: String)(line: String): Future[Option[Record]] = Future {
     val fields = line.split(",")
     try {
       val id = fields(0).toInt
       val name = fields(1).toLowerCase
-      //      val timeOfStart = DateTime.parse(fields(2),dateTimeFormatter)
-      //        .withZone(DateTimeZone.UTC)
-      //        .toString()
-      val timeOfStart = fields(2)
+      val timeOfStart = DateTime.parse(fields(2), dateTimeFormatter)
+        .withZone(DateTimeZone.UTC)
+        .toString()
       val obs = fields(3)
       Some(Record(id, name, timeOfStart, obs))
     } catch {
