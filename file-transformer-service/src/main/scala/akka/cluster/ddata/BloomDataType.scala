@@ -23,7 +23,6 @@ object BloomDataType {
     */
   def create[A <: Int](): BloomDataType[A] = empty[A]
 
-  // unapply from case class
 }
 
 /**

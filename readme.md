@@ -15,7 +15,7 @@ In this project I  have mainly focused on "Removing the duplicate values" part o
 I believe it's a major issue in most microservices.
  
 To scale up the project we have to be able to run multiple instances of a certain service to balance the load.
-Also each service runs completely isolated and even may have it's own data store, but in some cases they 
+Also each service runs completely isolated and even may have its own data store, but in some cases they 
 need to share some state with each other or at least be aware of each other.
 
 In this project each instance of **"file-transformer-service"** may process a different file. Each instance of service 
@@ -36,7 +36,7 @@ The state changes always converge.
  
 It is eventually consistent and geared toward providing high read and write availability (partition tolerance), with low latency. 
 
-I have implemented my own custom data type named [BloomDataType](file-transformer-service/src/main/scala/akka/cluster/ddata/BloomDataType.scala). It uses **BloomFilter** as it's underlying data structure.
+I have implemented my own custom data type named [BloomDataType](file-transformer-service/src/main/scala/akka/cluster/ddata/BloomDataType.scala). It uses **BloomFilter** as its underlying data structure.
 A Bloom filter is a space-efficient probabilistic data structure, that is used to test whether an element is a member of a set. 
 
 Before *Distributed Data* is born, I had the same idea and implemented a simple project called [Dibis](https://github.com/EtaCassiopeia/Dibis) two years ago.

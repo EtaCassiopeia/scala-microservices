@@ -32,17 +32,17 @@ class FileTransformer(config: Config, repository: InMemoryRepository, dataBot: A
   import system.dispatcher
 
   private val importDirectory = Paths.get(config.getString("transformer.tmp.dir")).toFile
-  private val dateTimeFormatter= DateTimeFormat.forPattern("dd/MM/YYYY HH:mm:ss").withOffsetParsed()
+  private val dateTimeFormatter = DateTimeFormat.forPattern("dd/MM/YYYY HH:mm:ss").withOffsetParsed()
 
   def parseLine(filePath: String)(line: String): Future[Option[Record]] = Future {
     val fields = line.split(",")
     try {
       val id = fields(0).toInt
       val name = fields(1).toLowerCase
-//      val timeOfStart = DateTime.parse(fields(2),dateTimeFormatter)
-//        .withZone(DateTimeZone.UTC)
-//        .toString()
-val timeOfStart = fields(2)
+      //      val timeOfStart = DateTime.parse(fields(2),dateTimeFormatter)
+      //        .withZone(DateTimeZone.UTC)
+      //        .toString()
+      val timeOfStart = fields(2)
       val obs = fields(3)
       Some(Record(id, name, timeOfStart, obs))
     } catch {
@@ -65,7 +65,7 @@ val timeOfStart = fields(2)
 
       var entry: ZipEntry = zipInputStream.getNextEntry
 
-      while ( entry.getName.contains("/") || !entry.getName.toLowerCase.contains(".csv"))
+      while (entry.getName.contains("/") || !entry.getName.toLowerCase.contains(".csv"))
         entry = zipInputStream.getNextEntry
 
       logger.info(s"parsing ${entry.getName} part of ${file.getPath}")

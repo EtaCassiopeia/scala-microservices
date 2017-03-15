@@ -47,7 +47,6 @@ class DataBot extends Actor with ActorLogging {
     case GetFailure(DataKey, Some((value: Int, replyTo: ActorRef))) =>
       log.info("Get Failure for value: {}", value)
       replyTo ! false
-    // read from majority within 5.second
     case NotFound(DataKey, Some((value: Int, replyTo: ActorRef))) =>
       log.info("NotFound for value: {}", value)
       replyTo ! false
@@ -58,7 +57,5 @@ class DataBot extends Actor with ActorLogging {
       val data = c.get(DataKey)
       log.info("Current elements: {}", data.bloom.numBits)
   }
-
-  //override def postStop(): Unit = tickTask.cancel()
 
 }
