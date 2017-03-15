@@ -1,3 +1,4 @@
+import play.sbt.PlayImport._
 import sbt._
 
 object Dependencies {
@@ -35,14 +36,18 @@ object Dependencies {
     "net.manub" %% "scalatest-embedded-kafka" % "0.7.1"
       exclude("log4j", "log4j"),
     "com.typesafe.slick" %% "slick" % "3.0.0",
-    "com.h2database" % "h2" % "1.4.193"
+    "com.h2database" % "h2" % "1.4.193",
+    "net.cakesolutions" %% "scala-kafka-client" % "0.10.2.0",
+    "net.cakesolutions" %% "scala-kafka-client-testkit" % "0.10.2.0" % Test,
+    "org.mockito" % "mockito-core" % "2.7.17" % Test,
+    specs2 % Test
   )
 
   val webDependencies: Seq[ModuleID] = commonDependencies ++ json ++ {
     Seq(
       "net.cakesolutions" %% "scala-kafka-client" % "0.10.2.0",
       "net.cakesolutions" %% "scala-kafka-client-akka" % "0.10.2.0",
-      "net.cakesolutions" %% "scala-kafka-client-testkit" % "0.10.2.0" % "test",
+      "net.cakesolutions" %% "scala-kafka-client-testkit" % "0.10.2.0" % Test,
       "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % Test
     )
   }

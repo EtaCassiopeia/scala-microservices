@@ -22,7 +22,6 @@ class DataBot extends Actor with ActorLogging {
   val replicator = DistributedData(context.system).replicator
   implicit val node = Cluster(context.system)
 
-  //val DataKey = GSetKey[Int]("id")
   val DataKey = BloomFilterKey[Int]("id")
 
   val readMajority = ReadMajority(timeout = 5.seconds)
@@ -35,14 +34,11 @@ class DataBot extends Actor with ActorLogging {
   def receive = {
     case Put(value) =>
       log.info("Adding: {}", value)
-      //replicator ! Update(DataKey, GSet.empty[Int], writeMajority)(_ + value)
       replicator ! Update(DataKey, BloomDataType.empty[Int], writeMajority)(_ + value)
     case MightContain(value) =>
       log.info("Check for value: {}", value)
       replicator ! Get(DataKey, readMajority, request = Some((value, sender())))
     case g@GetSuccess(DataKey, Some((value: Int, replyTo: ActorRef))) =>
-      //val elements = g.get(DataKey).elements
-      //replyTo ! elements.contains(value)
       replyTo ! g.get(DataKey).contains(value)
     case GetFailure(DataKey, Some((value: Int, replyTo: ActorRef))) =>
       log.info("Get Failure for value: {}", value)

@@ -1,21 +1,15 @@
 package messaging
 
-import akka.actor.{Actor, ActorLogging, Props}
-import akka.kafka.ConsumerMessage.{CommittableMessage, CommittableOffsetBatch}
+import akka.actor.{Actor, ActorLogging}
+import akka.kafka.ConsumerMessage.CommittableOffsetBatch
 import akka.kafka.scaladsl.Consumer.Control
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Keep, Sink}
 import com.typesafe.config.ConfigFactory
-import crdt.DataBot
-import messages.LoadFileCommand
-import play.api.libs.json.Json
-import repository.InMemoryRepository
-import transfer.FileTransformer
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.language.postfixOps
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class EventConsumer(eventHandler:EventHandler)(implicit mat: Materializer) extends Actor with ActorLogging {
 
@@ -29,7 +23,8 @@ class EventConsumer(eventHandler:EventHandler)(implicit mat: Materializer) exten
   override def receive: Receive = {
     case Start =>
       log.info("Initializing event consumer")
-      val (control, future) = EventSource.create("eventConsumer")(context.system)
+
+      val (control, future) = EventSource.create(ConfigFactory.load.getString("bootstrap.servers"),"eventConsumer")(context.system)
         .mapAsync(2)(eventHandler.processMessage)
         .map(_.committableOffset)
         .groupedWithin(10, 15 seconds)

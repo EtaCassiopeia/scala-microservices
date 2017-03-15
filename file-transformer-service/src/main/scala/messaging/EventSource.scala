@@ -9,9 +9,9 @@ import org.apache.kafka.common.serialization.{ ByteArrayDeserializer, StringDese
 
 object EventSource {
 
-  def create(groupId: String)(implicit system: ActorSystem): Source[ConsumerMessage.CommittableMessage[Array[Byte], String], Consumer.Control] = {
+  def create(bootstrapServers:String,groupId: String)(implicit system: ActorSystem): Source[ConsumerMessage.CommittableMessage[Array[Byte], String], Consumer.Control] = {
     val consumerSettings = ConsumerSettings(system, new ByteArrayDeserializer, new StringDeserializer)
-      .withBootstrapServers("localhost:9092")
+      .withBootstrapServers(bootstrapServers)
       .withGroupId(groupId)
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
 
