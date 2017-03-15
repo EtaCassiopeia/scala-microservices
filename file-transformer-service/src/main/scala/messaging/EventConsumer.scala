@@ -17,16 +17,9 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class EventConsumer(implicit mat: Materializer) extends Actor with ActorLogging {
+class EventConsumer(eventHandler:EventHandler)(implicit mat: Materializer) extends Actor with ActorLogging {
 
   import EventConsumer._
-
-  implicit val ActorSystem = context.system
-
-  val distributedDataBot = context.actorOf(Props(new DataBot))
-
-  private val config = ConfigFactory.load()
-  private val csvImporter = new FileTransformer(config, new InMemoryRepository, distributedDataBot)
 
   override def preStart(): Unit = {
     super.preStart()
@@ -37,7 +30,7 @@ class EventConsumer(implicit mat: Materializer) extends Actor with ActorLogging 
     case Start =>
       log.info("Initializing event consumer")
       val (control, future) = EventSource.create("eventConsumer")(context.system)
-        .mapAsync(2)(processMessage)
+        .mapAsync(2)(eventHandler.processMessage)
         .map(_.committableOffset)
         .groupedWithin(10, 15 seconds)
         .map(group => group.foldLeft(CommittableOffsetBatch.empty) { (batch, elem) => batch.updated(elem) })
@@ -64,17 +57,9 @@ class EventConsumer(implicit mat: Materializer) extends Actor with ActorLogging 
           context.stop(self)
       }
   }
-
-  private def processMessage(msg: Message): Future[Message] = {
-    val command=Json.parse(msg.record.value()).as[LoadFileCommand]
-    log.info(s"Consumed event: ${command.fileName}")
-    csvImporter.transformFile(command.fileName)
-    Future.successful(msg)
-  }
 }
 
 object EventConsumer {
-  type Message = CommittableMessage[Array[Byte], String]
 
   case object Start
 

@@ -119,6 +119,19 @@ sbt "project fileUploaderService" run
 
 above command will create an instance of *file-uploader-service* which will listen on port 9000.
 
+To upload a file you can use **curl**:
+
+```bash
+curl -F "name=@data_test.zip" http://localhost:9000/upload
+```
+
+You may noticed that I used a **zip** file. To decrease file upload size I prefer a compressed file instead of 
+a flat and uncompressed text file.
+
+
+After uploading the file, a message will publish to the **events** topic on kafka (this topic will be created automatically 
+after uploading first file). And then *file-transformer-service* will be notified and will start to process file.
+
 To start an instance of *file-transformer-service* you can use below command:
 
 ```bash
@@ -141,20 +154,6 @@ can be set using *session.timeout.ms* attribute.
 If no heartbeats are received by the broker before the expiration of this session timeout, 
 then the broker will remove this consumer from the group and initiate a rebalance and reassign the partition 
 to another consumer in a consumer group.
-
-
-
-And finally to upload a file you can use **curl**:
-
-```bash
-curl -F "name=@data_test.zip" http://localhost:9000/upload
-```
-
-You may noticed that I used a **zip** file. To decrease file upload size I prefer a compressed file instead of 
-a flat and uncompressed text file.
-
-After uploading the file, a message will publish to the **events** topic on kafka. And then *file-transformer-service*
-will be notified and will start to process file.
 
 Each *Id* which is visited from any instance of service will be added to the *Bloom Filter* and this event 
 will be propagated to other instances of the service.

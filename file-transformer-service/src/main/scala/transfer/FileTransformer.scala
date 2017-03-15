@@ -2,9 +2,9 @@ package transfer
 
 import java.io.{File, FileInputStream}
 import java.nio.file.Paths
-import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
 import java.util.concurrent.TimeUnit
-import java.util.zip.ZipInputStream
+import java.util.zip.{ZipEntry, ZipInputStream}
 
 import akka.NotUsed
 import akka.actor.{ActorRef, ActorSystem}
@@ -14,6 +14,7 @@ import akka.util.ByteString
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import dedup.ImplicitConversions._
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, DateTimeZone}
 import repository.InMemoryRepository
 
@@ -27,15 +28,17 @@ class FileTransformer(config: Config, repository: InMemoryRepository, dataBot: A
   import system.dispatcher
 
   private val importDirectory = Paths.get(config.getString("transformer.tmp.dir")).toFile
+  private val dateTimeFormatter= DateTimeFormat.forPattern("dd/MM/YYYY HH:mm:ss").withOffsetParsed()
 
   def parseLine(filePath: String)(line: String): Future[Option[Record]] = Future {
     val fields = line.split(",")
     try {
       val id = fields(0).toInt
       val name = fields(1).toLowerCase
-      val timeOfStart = DateTime.parse(fields(2))
-        .withZone(DateTimeZone.UTC)
-        .toString()
+//      val timeOfStart = DateTime.parse(fields(2),dateTimeFormatter)
+//        .withZone(DateTimeZone.UTC)
+//        .toString()
+val timeOfStart = fields(2)
       val obs = fields(3)
       Some(Record(id, name, timeOfStart, obs))
     } catch {
@@ -56,8 +59,12 @@ class FileTransformer(config: Config, repository: InMemoryRepository, dataBot: A
 
       val zipInputStream = new ZipInputStream(new FileInputStream(file))
 
-      val zipEntry = zipInputStream.getNextEntry
-      logger.info(s"parsing ${zipEntry.getName} part of ${file.getPath}")
+      var entry: ZipEntry = zipInputStream.getNextEntry
+
+      while ( entry.getName.contains("/") || !entry.getName.toLowerCase.contains(".csv"))
+        entry = zipInputStream.getNextEntry
+
+      logger.info(s"parsing ${entry.getName} part of ${file.getPath}")
 
       StreamConverters.fromInputStream(() => zipInputStream)
         .via(lineDelimiter)
@@ -71,7 +78,9 @@ class FileTransformer(config: Config, repository: InMemoryRepository, dataBot: A
 
     val startTime = System.currentTimeMillis()
 
-    Source(fileName :: Nil)
+    val list = (fileName :: Nil).filter(f => new java.io.File(s"$importDirectory/$f").exists)
+
+    Source(list)
       .map(f => new File(s"$importDirectory/$f"))
       .via(parseFile)
       .filter(_.isDefined)
