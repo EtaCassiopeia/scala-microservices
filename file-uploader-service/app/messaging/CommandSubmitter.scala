@@ -5,6 +5,9 @@ import com.typesafe.config.Config
 import messages.{LoadFileCommand, RowKey}
 import org.apache.kafka.common.serialization.StringSerializer
 
+/**
+  * CommandSubmitter is used to send a {@see messages.LoadFileCommand} event to a Kafka topic
+  */
 class CommandSubmitter(config: Config) {
 
   private val producer = KafkaProducer(

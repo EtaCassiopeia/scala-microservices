@@ -26,6 +26,13 @@ object BloomDataType {
   // unapply from case class
 }
 
+/**
+  * Implements a 'Bloom Filter' CRDT, also called a 'BloomDataType'.
+  * A Bloom filter is a space-efficient probabilistic data structure, that is used to test whether an element
+  * is a member of a set.
+  *
+  * This class is immutable, i.e. "modifying" methods return a new instance.
+  */
 @SerialVersionUID(1L)
 final class BloomDataType[A <: Int](val bloom: BF[A]) extends ReplicatedData with ReplicatedDataSerialization with FastMerge {
 
@@ -45,7 +52,7 @@ final class BloomDataType[A <: Int](val bloom: BF[A]) extends ReplicatedData wit
   }
 
   /**
-    * Adds an element to the set
+    * Adds an element to the bloom filter
     */
   def +(element: A): BloomDataType[A] = add(element)
 

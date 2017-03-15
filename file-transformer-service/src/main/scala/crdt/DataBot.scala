@@ -15,6 +15,10 @@ object DataBot {
 
 }
 
+/**
+  * DataBot is an Actor which is responsible for handling BloomFilter related request.
+  *
+  */
 class DataBot extends Actor with ActorLogging {
 
   import DataBot._

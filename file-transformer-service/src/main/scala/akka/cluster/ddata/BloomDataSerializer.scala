@@ -10,6 +10,11 @@ import com.twitter.algebird._
 import scala.collection.immutable.BitSet
 import scala.util.{Failure, Success, Try}
 
+/**
+  * A Serializer represents a bimap between an object and an array of bytes representing that object.
+  * BloomDataSerializer is an efficient serialization with Protobuf for {@see akka.cluster.ddata.BloomDataType}
+  * @param system
+  */
 class BloomDataSerializer(val system: ExtendedActorSystem)
   extends Serializer with SerializationSupport {
   override def identifier: Int = 1970

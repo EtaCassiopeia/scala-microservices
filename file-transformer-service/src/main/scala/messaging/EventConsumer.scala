@@ -11,6 +11,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
+/**
+  * EventConsumer is responsible for collection and processing events from Kafka topic.
+  * It uses Akka Stream to do this. A plug-able EventHandler can handle received events.
+  *
+  */
 class EventConsumer(eventHandler:EventHandler)(implicit mat: Materializer) extends Actor with ActorLogging {
 
   import EventConsumer._

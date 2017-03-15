@@ -22,6 +22,10 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
+/**
+  * FileTransformer is responsible for processing file content and store them on a Database
+  *
+  */
 class FileTransformer(config: Config, repository: InMemoryRepository, dataBot: ActorRef)
                      (implicit system: ActorSystem) extends LazyLogging {
 

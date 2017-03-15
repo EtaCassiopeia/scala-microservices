@@ -19,6 +19,9 @@ trait EventHandler {
   def processMessage(msg: Message): Future[Message]
 }
 
+/**
+  * An implementation of EventHandler which is able to process a file's context and store the results on a Database
+  */
 class CsvImporterEventHandler(implicit val system: ActorSystem) extends EventHandler {
 
   val distributedDataBot = system.actorOf(Props(new DataBot))

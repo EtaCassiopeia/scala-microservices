@@ -38,9 +38,7 @@ class FileController @Inject()(configuration: Configuration,lifecycle: Applicati
 
   /**
     * Uses a custom FilePartHandler to return a type of "File" rather than
-    * using Play's TemporaryFile class.  Deletion must happen explicitly on
-    * completion, rather than TemporaryFile (which uses finalization to
-    * delete temporary files).
+    * using Play's TemporaryFile class.
     *
     * @return
     */
@@ -58,7 +56,7 @@ class FileController @Inject()(configuration: Configuration,lifecycle: Applicati
   }
 
   /**
-    * A generic operation on the temporary file that deletes the temp file after completion.
+    * A generic operation on the temporary file that send an event to a Kafka topic
     */
   private def operateOnTempFile(file: File) = {
     val size = Files.size(file.toPath)

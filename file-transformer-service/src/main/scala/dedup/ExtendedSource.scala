@@ -10,6 +10,9 @@ import crdt.DataBot
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
+/**
+  * ExtendedSource is used as Implicit Conversion to add a new method called 'withUniqueId' to {@akka.stream.scaladsl.Source}
+  */
 case class ExtendedSource[+Out, +Mat](source: Source[Out, Mat]) {
 
   implicit val timeout = Timeout(5 seconds)
