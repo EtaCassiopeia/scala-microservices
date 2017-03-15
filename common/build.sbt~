@@ -1,3 +1,0 @@
-name := MyBuild.NamePrefix + "common"
-
-enablePlugins(PlayScala)
