@@ -13,6 +13,7 @@ import akka.util.ByteString
 import messages.{LoadFileCommand, RowKey}
 import play.api._
 import play.api.i18n.MessagesApi
+import play.api.inject.ApplicationLifecycle
 import play.api.libs.streams._
 import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc._
@@ -27,7 +28,7 @@ import messaging.CommandSubmitter
   * This controller handles a file upload.
   */
 @Singleton
-class FileController @Inject()(configuration: Configuration, implicit val messagesApi: MessagesApi)
+class FileController @Inject()(configuration: Configuration,lifecycle: ApplicationLifecycle, implicit val messagesApi: MessagesApi)
   extends Controller with i18n.I18nSupport {
 
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
@@ -62,6 +63,7 @@ class FileController @Inject()(configuration: Configuration, implicit val messag
   private def operateOnTempFile(file: File) = {
     val size = Files.size(file.toPath)
     logger.info(s"size = $size")
+    logger.info(configuration.getConfig("kafka").get.underlying.toString)
     submitter.submit(RowKey.generate, LoadFileCommand(System.currentTimeMillis(), file.getName))
     size
   }
@@ -79,6 +81,10 @@ class FileController @Inject()(configuration: Configuration, implicit val messag
     }
 
     Ok(s"file size = ${fileOption.getOrElse("no file")}")
+  }
+
+  lifecycle.addStopHook { () =>
+    Future.successful(submitter.close())
   }
 
 }

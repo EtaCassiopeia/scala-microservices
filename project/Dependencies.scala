@@ -1,5 +1,4 @@
 import sbt._
-import Keys._
 
 object Dependencies {
 
@@ -41,13 +40,11 @@ object Dependencies {
 
   val webDependencies: Seq[ModuleID] = commonDependencies ++ json ++ {
     Seq(
-      //jdbc,
-      //cache,
-      // ws
-      //specs2 % Test
       "net.cakesolutions" %% "scala-kafka-client" % "0.10.2.0",
-      "net.cakesolutions" %% "scala-kafka-client-akka" % "0.10.2.0"
+      "net.cakesolutions" %% "scala-kafka-client-akka" % "0.10.2.0",
+      "net.cakesolutions" %% "scala-kafka-client-testkit" % "0.10.2.0" % "test",
+      "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % Test
     )
-
   }
+
 }

@@ -153,7 +153,7 @@ curl -F "name=@data_test.zip" http://localhost:9000/upload
 You may noticed that I used a **zip** file. To decrease file upload size I prefer a compressed file instead of 
 a flat and uncompressed text file.
 
-After uploading the file, a message will publish to **event** topics on kafka. And then *file-transformer-service*
+After uploading the file, a message will publish to the **events** topic on kafka. And then *file-transformer-service*
 will be notified and will start to process file.
 
 Each *Id* which is visited from any instance of service will be added to the *Bloom Filter* and this event 

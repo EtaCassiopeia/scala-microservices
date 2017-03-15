@@ -12,6 +12,10 @@ lazy val fileUploaderService = (project in file("file-uploader-service")).
   dependsOn(common).
   settings(Common.settings: _*).
   settings(libraryDependencies ++= Dependencies.webDependencies).
+  settings(libraryDependencies ++= Seq(
+    ws,
+    javaWs,
+    specs2 % Test)).
   enablePlugins(PlayScala)
 
 lazy val fileTransformerService = (project in file("file-transformer-service")).
